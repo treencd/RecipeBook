@@ -1,0 +1,8 @@
+[{"viewclass": "MDMenuItem",
+    "text": "All"},
+  {"viewclass": "MDMenuItem",
+    "text": "Favourites"},
+  {"viewclass": "MDMenuItem",
+    "text": "Quickest"},
+  {"viewclass": "MDMenuItem",
+    "text": "Recent"}]

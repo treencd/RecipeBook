@@ -1,0 +1,554 @@
+#:set color_shadow [0, 0, 0, .2980392156862745]
+
+<TileButton>:
+    id: tile_btn
+    size_hint_x: None
+    width: app.menu_tile_width
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    border_radius: [18]
+    on_release:
+        app.root.ids.screen_manager.current = 'display_screen'
+        app.display_recipe(btn_title.text)
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1) if self.state == 'normal' else app.theme_cls.accent_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: self.border_radius
+    BoxLayout:
+        id: stack
+        pos: self.parent.pos
+        size: self.parent.size
+        orientation: 'vertical'
+        padding: 5
+        spacing: 5
+        Image:
+            id: tile_box
+            #source: ''
+            size_hint: None, None
+            height: 0.4 * tile_btn.height
+            pos: self.parent.pos
+            pos_hint: {'center_x': 0.5}
+            #width: app.menu_tile_width - 30
+            canvas.after:
+                Color:
+                    rgba: app.theme_cls.primary_color
+                Line:
+                    width: 4
+                    rounded_rectangle: [self.pos[0], self.pos[1] + 5, (self.width), self.height - 5, 10]
+        Label:
+            id: btn_title
+            size_hint_x: None
+            width: app.menu_tile_width
+            text_size: (self.width-10), None
+            pos_hint: {'center_x': 0.5}
+            halign: 'center'
+            color: 0.1, 0.1, 0.1, 1
+            markup: True
+        BoxLayout:
+            id: button_rating
+            #orientation: 'vertical'
+            size_hint: None, None
+            size: 0.75 * app.menu_tile_width, 0.15 * app.menu_tile_height
+            pos_hint: {'center_x': 0.5}
+            canvas:
+                Color:
+                    rgba: app.theme_cls.primary_color
+                Line:
+                    width: 4
+                    rounded_rectangle: [self.pos[0], self.pos[1], self.width, self.height, 5]  # [self.pos[0] + 10, self.pos[1] + 6, (self.width - 20), self.height, 7]
+                Color:
+                    rgba: app.theme_cls.accent_color  # 0,0,0,1
+                RoundedRectangle:
+                    size: self.size  # [0] - 20, self.size[1]
+                    pos: self.pos  #[0] + 10, self.pos[1] + 6
+                    radius: [7,]
+            Image:
+                id: rating_img
+                source: ''
+                allow_stretch: True
+                keep_ratio: True
+                size: button_rating.size
+                pos: button_rating.pos
+        Widget:
+            size_hint_y: None
+            height: 0.01 * app.menu_tile_height
+
+
+<RoundedLabel>:
+    background_color: 0,0,0,0  # the last zero is the critical one, make invisible
+    canvas.before:
+        Color:
+            rgba: (0.5, 0.0, 0.0, 1) #if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+
+<RoundedButton>:
+    on_release: app.remove_tag(self)
+    background_color: 0,0,0,0  # the last zero is the critical one, make invisible
+    canvas.before:
+        Color:
+            rgba: (0.5, 0.0, 0.0,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+
+<MDSearchField>:
+    id: search_field
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    border_radius: [18]
+    search_focus: self.search_focus
+    bg_color: self.bg_color
+    canvas:
+        Color:
+            rgba: (1, 1, 1, 0.2) if app.search_focus else (1, 1, 1, 0.6) # self.bg_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: self.border_radius
+    FloatLayout:
+        size: self.parent.size
+        pos: self.parent.pos
+        NavigationDrawerIconButton:
+            icon: 'file-search'
+            pos: self.parent.pos
+            pos_hint: {'center_y': 0.5, 'left': 1}
+            on_release: app.search_focus = False
+            on_release: app.update_tile_menu(search_input.text)
+        TextInput:
+            id: search_input
+            name: 'search_input'
+            size_hint: None, None
+            width: self.parent.width - 50
+            height: self.parent.height
+            pos_hint: {'right': 1}
+            background_color: 0,0,0,0
+            #bg_color: (1,1,1,.2) if self.focus else (1,1,1,.2)
+            pos: self.parent.pos
+            hint_text: 'Search...' if self.width > 100 else ''
+            on_text_validate: app.update_tile_menu(self.text)
+            on_text_validate: app.search_focus = False
+            focus: app.search_focus
+            on_focus: app.search_focus = True
+            multiline: False
+            use_bubble: True
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 0.9
+                Line:
+                    points: self.x + 20, self.y, self.x + self.width - 20, self.y
+                    width: 1.2
+
+<TagMDRectangleFlatIconButton>:
+    on_release: app.add_tags(self.text) if self.text != "Add/Rem" else print('skip')
+
+<TagPopup>:
+    id: tag_popup
+    title: 'Add/Remove Tags'
+    content: tag_content
+    size_hint: None,None
+    size: (450), (300)
+    auto_dismiss: False
+    on_open: tag_content.scroll_y = 1
+    ScrollView:
+        id: tag_content
+        do_scroll_x: False
+        do_scroll_y: True
+        GridLayout:
+            cols: 1
+            size_hint_y: None
+            height: self.minimum_height
+            padding: 5
+            spacing: 5
+            GridLayout:
+                id: add_rem_tag_container
+                cols: 3
+                size_hint_y: None
+                height: self.minimum_height
+            Widget:
+            BoxLayout:
+                id: add_textinput
+                size_hint_y: None
+                height: new_tag_input_edit.height + 4
+                orientation: 'horizontal'
+                spacing: 5
+                MDTextFieldRound:
+                    id: new_tag_input_edit
+                    size_hint_x: None
+                    width: tag_popup.width - 95
+                    normal_color: color_shadow
+                    active_color: color_shadow
+                    pos_hint: {'center_x': .5, 'center_y': 0.5}
+                    icon_type: 'without'
+                    hint_text: 'New Tag #1, New Tag #2, ...'
+                    normal_color: [0, 0, 0, .1]
+                Button:
+                    id: add_tag
+                    on_release: tag_popup.add_tags_input(new_tag_input_edit.text)
+                    background_color: 0,0,0,0  # the last zero is the critical one, make invisible
+                    size_hint_x: None
+                    width: 50
+                    canvas.before:
+                        Color:
+                            rgba: (0.0, 0.5, 0.0,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [5,]
+                    Image:
+                        source: 'images/add.png'
+                        center: self.parent.center
+                        size: 30, 30
+            BoxLayout:
+                size_hint_y: None
+                height: 50
+                spacing: 5
+                orientation: 'horizontal'
+                MDRectangleFlatIconButton:
+                    id: submit_tag_btn
+                    text: 'OK'
+                    on_release: app.update_tag_list()
+                    on_release: new_tag_input_edit.text = ''
+                    icon: 'check'
+                    size: dp((root.width - 40) / 2), dp(50)
+                MDRectangleFlatIconButton:
+                    id: dismiss_tag_btn
+                    text: 'Cancel'
+                    icon: 'close'
+                    on_release: tag_popup.tag_dismiss()
+                    on_release: new_tag_input_edit.text = ''
+                    size: dp((root.width - 40) / 2), dp(50)
+
+<FilePopup>:
+    id: popup
+    title: 'FileChooser'
+    content: pop_content
+    size_hint: None,None
+    size: 600,400
+    auto_dismiss: False
+    BoxLayout:
+        id: pop_content
+        orientation: 'vertical'
+        spacing: 5
+        Widget:
+            size_hint_y: None
+            height: 5
+        ScrollView:
+            FileChooser:
+                id: file_chooser
+                path: app.root_path
+                size_hint_y: None
+                height: 500
+                on_submit: app.submit_file_selection(self)
+                FileChooserListLayout
+        Widget:
+            size_hint_y: None
+            height: 5
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 5
+            Button:
+                id: submit_btn
+                text: 'OK'
+                on_release: app.submit_file_selection(self)
+            Button:
+                id: dismiss_btn
+                text: 'Cancel'
+                on_release: popup.dismiss()
+
+<ConfirmDeletePopup>:
+    id: delete_popup
+    title: 'Confirmation'
+    content: delete_content
+    size_hint: None,None
+    size: (350), (275)
+    auto_dismiss: False
+    recipe_id: self.recipe_id
+    BoxLayout:
+        id: delete_content
+        orientation: 'vertical'
+        canvas:
+            Color:
+                rgba: 1, 1, 1, .1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Label:
+            text: '[b]Are you sure you want to delete the recipe?\n[color=fc0036](no recovery option)[/color][/b]'
+            text_size: self.width-10, None
+            halign: 'center'
+            valign: 'center'
+            markup: True
+            #size_hint: (1, None)
+            #height: self.texture_size[1]
+        BoxLayout:
+            #orientation: 'horizontal'
+            size_hint: (1, None)
+            height: 40
+            pos: delete_content.pos
+            #pos_hint: {'center_x': .5, 'center_y': .5}
+            AnchorLayout:
+                anchor_x: 'left'
+                anchor_y: 'bottom'
+                MDRectangleFlatIconButton:
+                    text: 'Delete'
+                    icon: 'delete'
+                    md_bg_color: .2, .2, .2, 1
+                    size: dp(.5 * root.width - 15), dp(35)
+                    pos_hint: {'left': 1}
+                    text_color: 1, 0, 0, 1
+                    on_release:
+                        delete_popup.delete_confirmed(self)
+                        app.root.ids.screen_manager.current='tile_list_screen'
+                        app.orphan_id_list.append(delete_popup.recipe_id)
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'bottom'
+                MDRectangleFlatIconButton:
+                    text: 'Cancel'
+                    icon: 'step-backward'
+                    md_bg_color: .2, .2, .2, 1
+                    size: dp(.5 * root.width - 15), dp(35)
+                    on_release: delete_popup.dismiss()
+                    pos_hint: {'right': 0}
+
+
+<IngredientGroup@TabbedPanelItem>:
+    text: ingred_title.text
+    text_size: self.width, self.height
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            MDTextFieldRect:
+                id: ingred_title
+                hint_text: 'Sauce (Optional ingredient header)'
+                write_tab: False
+                multiline: False
+                size_hint: None, None
+                size: .5 * edit_ingredients_input.width, 30
+            MDChip:
+                label: "add group" if edit_ingredients_input.width > 500 else ''
+                color: 0, .9215, 0, 1
+                icon: "plus"
+                callback: app.add_ingredient_group
+                pos_hint: {'center_y': 0.5}
+                size_hint_x: None
+                width: .25 * edit_ingredients_input.width
+            MDChip:
+                label: "rem group" if edit_ingredients_input.width > 500 else ''
+                color: .9215, 0, 0, 1
+                icon: "close"
+                callback: app.remove_ingredient_group
+                size_hint_x: None
+                width: .25 * edit_ingredients_input.width
+                pos_hint: {'center_y': 0.5}
+        MDTextFieldRect:
+            id: edit_ingredients_input
+            hint_text: '1 cup all-purpose flour\n1/2 cup cocoa powder\n1.5 tsp vanilla...'
+            size_hint: None, None
+            size: 0.8 * app.root.width, 180
+            pos_hint: {'center_x': 0.5}
+            write_tab: False
+            multiline: True
+
+<CropButton>: # for the four buttons in the cropper area
+    pos_hint: {'x': 0}
+    Button:
+        size_hint: None, None
+        size: 20, 20
+        canvas:
+            Color:
+                rgba: (.2, .2, .2, 1) if self.state == 'normal' else app.theme_cls.primary_color
+            Ellipse:
+                size: self.size
+                pos: self.pos
+            Color:
+                rgba: 0, 0, 1, 1
+            Line:
+                width: 2
+                ellipse: (self.pos[0], self.pos[1], 20, 20)
+
+<MDFloatButtonCrop@FloatLayout>:
+    #pos_hint: {'x': 0}
+    MDFillRoundFlatIconButton:
+        icon: 'file-check'
+        md_bg_color: 0, 1, 0, 0.5
+        text: 'Crop  '
+        pos: app.float_crop_pos
+        on_release: app.crop_image()
+
+<MDFloatButtonCancel@FloatLayout>:
+    #pos_hint: {'x': 0}
+    MDFillRoundFlatIconButton:
+        icon: 'close-box'
+        md_bg_color: 1, 0, 0, 0.5
+        text: 'Reset'
+        pos: app.float_cancel_pos
+        on_release:
+            app.reset_buttons(self)
+            app.clear_crop_mesh()
+
+<MDFloatButtonEditImg@FloatLayout>:
+    #pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'crop'
+        md_bg_color: 0, 0, 1, 0.5
+        elevation_normal: 2
+        pos: app.float_edit_img_pos
+        on_release:
+            app.update_buttons()
+
+<MDFloatButtonReturnTile@FloatLayout>:
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'close'
+        md_bg_color: 0.7, 0, 0, 1
+        elevation_normal: 8
+        pos: app.return_btn_pos
+        on_release:
+            app.root.ids.screen_manager.current='tile_list_screen'
+
+<MDFloatButtonReturnDisplay@FloatLayout>:
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'close'
+        md_bg_color: 0.7, 0, 0, 1
+        elevation_normal: 8
+        pos: app.return_btn_pos
+        on_release:
+            app.root.ids.screen_manager.current='display_screen'
+
+<MDFloatButtonAccept@FloatLayout>:
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'check'
+        md_bg_color: 0, 0.7, 0, 1
+        #text: 'Crop'
+        elevation_normal: 8
+        pos: app.accept_btn_pos
+        on_release: app.update_db()
+
+<MDFloatButtonNew@FloatLayout>:
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'plus'
+        md_bg_color: app.theme_cls.primary_color
+        elevation_normal: 8
+        pos: app.new_rec_btn_pos
+        on_release: app.root.ids.screen_manager.current = 'new_screen'
+
+<BoxStencil@BoxLayout,StencilView>
+
+<CropLayout@BoxLayout>:
+    id: stencil_layout
+    name: 'stencil_layout'
+    orientation: 'vertical'
+    BoxStencil:
+        id: stencil
+        size_hint: None, None
+        size: app.image_x, app.image_y
+        on_touch_down: app.on_click_down(args)
+        on_touch_move: app.on_click_up(args)
+        on_touch_up: app.on_click_up(args)
+        canvas:
+            Color:
+                rgba: .9,.9,.9,1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            Color:
+                rgba: app.theme_cls.accent_color
+            Line:
+                width: 4
+                rounded_rectangle: [self.pos[0] - 4, self.pos[1] - 4, (self.width) + 8, self.height + 8, 10]
+        Image:
+            id: edit_image
+            size_hint: None, None
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
+            keep_ratio: True
+            allow_stretch: True
+            size: stencil.size
+            source: app.recipe_image
+
+<MyMDTextFieldRound@MDTextFieldRound>:
+    icon_type: 'without'
+    normal_color: [1, 1, 1, .1]
+    active_color: color_shadow
+
+<IngredientBlock>:
+    cols: 2
+    spacing: 20
+    padding: 0
+    size_hint: None, None
+    size: app.root.width, label_i.height
+    Label:
+        id: label_u
+        text_size: self.width-10, None
+        halign: 'right'
+        valign: 'top'
+        size_hint: None, None
+        pos: self.parent.pos
+        size: 0.3 * app.root.width, label_i.texture_size[1] + 4
+    Label:
+        id: label_i
+        text_size: self.width-10, None
+        halign: 'left'
+        valign: 'top'
+        size_hint: (1, None)
+        height: self.texture_size[1]
+
+<HeaderLabel>:
+    orientation: 'vertical'
+    label_text: self.label_text
+    label_markup: self.label_markup
+    Widget:
+        size_hint_y: None
+        height: dp(10)
+    MDSeparator:
+        size_hint_x: .6
+        pos_hint: {'center_x': .5}
+    Label:
+        text_size: self.size
+        halign: 'center'
+        valign: 'center'
+        size_hint_y: None
+        height: 40
+        markup: root.label_markup
+        text: root.label_text
+    MDSeparator:
+        size_hint_x: .6
+        pos_hint: {'center_x': .5}
+    Widget:
+        size_hint_y: None
+        height: dp(10)
+
+<FileMenuDropDown>:
+    MDFloatingActionButton:
+        icon: 'database-edit'
+        md_bg_color: .753, .73, .284, 1
+        elevation_normal: 8
+        pos: app.btn2_pos
+        on_release:
+            app.root.ids.screen_manager.current = 'edit_screen'
+            app.file_menu.dismiss()
+    MDFloatingActionButton:
+        icon: 'share'
+        md_bg_color: app.theme_cls.primary_color
+        elevation_normal: 8
+        pos: app.btn2_pos
+    MDFloatingActionButton:
+        icon: 'delete'
+        md_bg_color: .719, .207, .255, 1
+        elevation_normal: 8
+        pos: app.btn2_pos
+        on_release:
+            app.delete_recipe()
+            app.file_menu.dismiss()

@@ -1,0 +1,261 @@
+<NewScreen@Screen>:
+    id: new_screen
+    name: 'new_screen'
+    on_enter:
+        app.on_click_up()
+        app.update_cropper()
+    on_pre_enter:
+        app.reset_cropper_height(6) if app.root.width >= 800 else app.reset_cropper_height
+        edit_scroll.scroll_y = 1
+    on_leave:
+        #app.display_recipe(app.title_display)
+        app.reset_buttons(self, stencil_layout.children[0])
+        app.clear_widgets(self)
+    AnchorLayout:
+        size_hint: None, None
+        width: root.width
+        height: root.height  # - toolbar.height
+        x: root.x
+        y: 0
+        ScrollView:
+            id: edit_scroll
+            do_scroll_x: True
+            do_scroll_y: True
+            bar_width: 8
+            bar_color: app.theme_cls.accent_color
+            bar_inactive_color: [.7, .7, .7, .4]
+            scroll_type: ['bars', 'content']
+            GridLayout:
+                id: edit_box
+                cols: 1
+                size_hint: None, None
+                height: self.minimum_height
+                width: self.minimum_width
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: 5
+                    Widget:
+                        size_hint_y: None
+                        height: 20
+                    Label:
+                        id: crop_label
+                        size_hint: None, None
+                        width: app.image_x + 20
+                        height: app.image_y if root.width >= 800 else (app.image_y + 100)
+                        CropLayout:  # ____________________ CROP LAYOUT ____________________
+                            id: stencil_layout
+                            name: 'stencil_layout'
+                            pos: app.stencil_pos
+                    MDFloatButtonCrop:
+                    MDFloatButtonCancel:
+                    MDFloatButtonEditImg:
+
+                BoxLayout:
+                    id: below_cropper
+                    size_hint_y: None
+                    height: 50
+                    orientation: 'horizontal'
+                    padding: 0
+                    spacing: 5
+                    Widget:
+                        size_hint_x: None
+                        width: 0.1 * root.width
+                    MyMDTextFieldRound:
+                        id: file_selection_edit
+                        hint_text: 'C:\...'
+                        size_hint: None, None
+                        write_tab: False
+                        multiline: False
+                        height: dp(30)
+                        width: dp(200)
+                        pos_hint: {'center_y': 0.5}
+                    MDRectangleFlatButton:
+                        id: filechooser_btn_edit
+                        icon: "folder"
+                        text: 'Open'
+                        on_release: app.open_filechooser()
+                        pos_hint: {'center_y': 0.5}
+                        size_hint: None, None
+                        height: 30
+                        width: 30
+                    GridLayout:
+                        id: edit_tag_container
+                        pos_hint: {'center_y': 0.5}
+                        cols: 3
+                        padding: 6
+                        spacing: 6
+                Label:
+                    size_hint_y: None
+                    height: 10
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint: None, None
+                    size: root.width, 100
+                    MyMDTextFieldRound:
+                        id: edit_recipe_title_input
+                        write_tab: False
+                        multiline: False
+                        size_hint: None, None
+                        size: 0.8 * root.width, 50
+                        pos_hint: {'center_x': .5}
+                        hint_text: 'Title'
+                        text: app.title_display
+                    MyMDTextFieldRound:
+                        id: edit_recipe_desc
+                        write_tab: False
+                        multiline: True
+                        size_hint: None, None
+                        size: 0.8 * root.width, 50
+                        pos_hint: {'center_x': .5}
+                        hint_text: 'Website(Url)'
+                        text: app.edit_desc_display
+                        markup: True
+                BoxLayout:
+                    size_hint_y: None
+                    height: 60
+                    orientation: 'horizontal'
+                    padding: 5
+                    spacing: 5
+                    Label:
+                        size_hint_x: None
+                        width: 0.1 * root.width
+                    MDRectangleFlatButton:
+                        id: edit_tag_btn
+                        #size_hint: .1, None
+                        height: dp(40)
+                        #width: dp(200) #, dp(30)
+                        pos_hint: {'center_y': 0.5}
+                        text: '[b]        Tags        [/b]'
+                        markup: True
+                        write_tab: False
+                        on_press: app.refresh_tag_dd()
+                        on_release: app.drop_down.open(self)
+                    Label:
+                        text: '[b]  prep time: [/b]' if root.width > 600 else ''
+                        markup: True
+                        size_hint_y: None
+                        width: self.texture_size[0]
+                        pos_hint: {'center_y': 0.5}
+                    MyMDTextFieldRound:
+                        id: edit_prep_time
+                        size_hint: None, None
+                        write_tab: False
+                        multiline: False
+                        width: 100
+                        hint_text: '20 min'
+                        text: app.time_prep_display
+                    Label:
+                        text: '[b]  cook time: [/b]' if root.width > 600 else ''
+                        markup: True
+                        size_hint_y: None
+                        width: self.texture_size[0]
+                        pos_hint: {'center_y': 0.5}
+                    MyMDTextFieldRound:
+                        id: edit_cook_time
+                        size_hint: None, None
+                        write_tab: False
+                        multiline: False
+                        width: 100
+                        hint_text: '1 hour'
+                        text: app.time_cook_display
+                    Label:
+                        size_hint_x: None
+                        width: 0.1 * root.width
+                BoxLayout:
+                    size_hint_y: None
+                    height: 40
+                    orientation: 'horizontal'
+                    padding: 0
+                    spacing: 5
+                    Label:
+                        size_hint_x: None
+                        width: 0.1 * root.width
+                    Label:
+                        size_hint_y: None
+                        height: 25
+                        pos_hint: {'center_x': 0.5}
+                        text: '[b]Ingredients:[/b]'
+                        markup: True
+                    Label:
+                        size_hint_x: None
+                        width: 0.1 * root.width
+                BoxLayout:
+                    id: edit_ingredient_container
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height  # ___________________ INGREDIENT CONTAINER _________________________:
+                    MDSeparator:
+                        size_hint_x: None
+                        width: 0.8 * root.width
+                        pos_hint: {'center_x': .5}
+                    Widget:
+                        size_hint_x: None
+                        height: 20
+                    TabbedPanel:
+                        id: ingredient_panel
+                        size_hint: None, None
+                        size: 0.8 * root.width, 245
+                        pos_hint: {'center_x': 0.5}
+                        do_default_tab: False
+                        tab_height: 30
+                        TabbedPanelItem:
+                            text: ingred_title.text
+                            text_size: self.width, self.height
+                            BoxLayout:
+                                orientation: 'vertical'
+                                BoxLayout:
+                                    orientation: 'horizontal'
+                                    MDTextFieldRect:
+                                        id: ingred_title
+                                        hint_text: 'Main (Optional ingredient header)'
+                                        write_tab: False
+                                        multiline: False
+                                        size_hint: None, None
+                                        size: .5 * edit_ingredients_input.width, 30
+                                    MDChip:
+                                        label: "add group" if edit_ingredients_input.width > 450 else ''
+                                        color: 0, .9215, 0, 1
+                                        icon: "plus"
+                                        callback: app.add_ingredient_group
+                                        pos_hint: {'center_y': 0.5}
+                                        size_hint_x: None
+                                        width: .25 * edit_ingredients_input.width
+                                    MDChip:
+                                        label: "rem group" if edit_ingredients_input.width > 500 else ''
+                                        color: .9215, 0, 0, 1
+                                        icon: "close"
+                                        callback: app.remove_ingredient_group
+                                        size_hint_x: None
+                                        width: .25 * edit_ingredients_input.width
+                                        pos_hint: {'center_y': 0.5}
+                                MDTextFieldRect:
+                                    id: edit_ingredients_input
+                                    hint_text: '1 cup all-purpose flour\n1/2 cup cocoa powder\n1.5 tsp vanilla...'
+                                    size_hint: None, None
+                                    size: 0.8 * root.width, 180
+                                    pos_hint: {'center_x': 0.5}
+                                    write_tab: False
+                                    multiline: True
+
+                    #  _________________________  #
+                    Label:
+                        text: '[b]Instructions[/b]'
+                        markup: True
+                        size_hint_y: None
+                        height: 35
+                    MDTextFieldRect:
+                        id: edit_instructions_input
+                        hint_text: '1. Step one\n\n2. Step two\n\n3. Step three...'
+                        size_hint: None, None
+                        height: 200
+                        width: 0.8 * root.width
+                        pos_hint: {'center_x': 0.5}
+                        write_tab: False
+                        multiline: True
+                    Widget:
+                        size_hint_y: None
+                        height: 35
+        MDFloatButtonReturnTile:
+        MDFloatButtonAccept:

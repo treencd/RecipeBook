@@ -1,0 +1,174 @@
+<MDFloatButtonBack@FloatLayout>:
+    id: float_btn1
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'page-previous'
+        opposite_colors: True
+        elevation_normal: 8
+        pos: app.btn1_pos
+        on_release:
+            app.root.ids.screen_manager.current = 'tile_list_screen'
+            import os
+            os.remove("images/bin/%s.jpg" % app.title_display)
+
+<MDFloatButtonEdit@FloatLayout>:
+    id: float_btn2
+    pos_hint: {'x': 0}
+    MDFloatingActionButton:
+        icon: 'dots-vertical'
+        md_bg_color: app.theme_cls.accent_color
+        elevation_normal: 8
+        pos: app.btn2_pos
+        on_release: app.file_menu.open(self)
+
+<DisplayScreen>:
+    name: 'display_screen'
+    id: display_screen
+    on_pre_enter: display_scroll.scroll_y = 1
+    on_pre_leave:
+        self.update_rating(app.rating_display, app.recipe_id)
+    on_leave:
+        self.ids.rating_box.clear_widgets()
+        self.ids.table_data.clear_widgets()
+        app.update_tile_menu()
+    AnchorLayout:
+        size_hint: None, None
+        width: root.width
+        height: root.height  # - toolbar.height
+        x: root.x
+        y: 0
+        ScrollView:
+            id: display_scroll
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_width: 8
+            bar_color: app.theme_cls.accent_color
+            bar_inactive_color: [.7, .7, .7, .4]
+            scroll_type: ['bars', 'content']
+            BoxLayout:
+                id: scrollbox
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                Widget:
+                    size_hint_y: None
+                    height: 20
+                FloatLayout:  # _______________ IMAGE ___________________
+                    id: float
+                    size_hint: None, None
+                    height: display_img.height
+                    width: root.width
+                    Image:
+                        id: display_img
+                        size_hint: None, None
+                        width: (0.6 * root.width) if root.width <= 1000 else 600
+                        height: ((3 / 4) * self.width)
+                        source: app.recipe_image
+                        allow_stretch: True
+                        keep_ratio: True
+                        pos_hint: {'center_x': 0.5, 'top': 1}
+                        canvas.after:
+                            Color:
+                                rgba: app.theme_cls.accent_color
+                            Line:
+                                width: 4
+                                rounded_rectangle: [self.pos[0] , self.pos[1] , (self.width) , self.height , 10]
+                        # ______________________
+                BoxLayout:
+                    id: title_info
+                    size_hint: None, None
+                    width: root.width
+                    height: self.minimum_height
+                    padding: 8
+                    spacing: 10
+                    orientation: 'vertical'
+                    MDSeparator:
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1, None)
+                        height: title_display.height
+                        Widget:
+                        Label:
+                            id: title_display
+                            text: '  ' + app.title_display
+                            font_size: 30
+                            size_hint: None, None
+                            height: self.texture_size[1]
+                            width: self.texture_size[0]  # display_screen.width - 40
+                            halign: 'center'
+                        Widget:
+                    BoxLayout:
+                        id: rating_box
+                        orientation: 'horizontal'
+                        size_hint: None, None
+                        size: dp(400), dp(50)
+                        pos_hint: {'center_x': 0.5}  # ____________ RATING CONTAINER  ___________________
+                    MDSeparator:
+                    Label:
+                        id: view_desc_label
+                        text: app.desc_display
+                        size_hint: None, None
+                        height: self.texture_size[1]
+                        width: display_screen.width - 20
+                        text_size: self.width, None
+                        markup: True
+                        halign: 'center'
+                        on_ref_press:
+                            from include.static_fun import open_link
+                            open_link(args)
+                    BoxLayout:
+                        size_hint_y: None
+                        height: 35
+                        orientation: 'horizontal'
+                        Label:
+                            text: 'prep time: ' + app.time_prep_display + '\n' + 'cook time: ' + app.time_cook_display
+                            font_size: 15
+                            text_size: self.width, None
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            halign: 'center'
+                        GridLayout:
+                            id: view_tag_container
+                            cols: 3
+                            padding: 6
+                            spacing: 6
+                    MDSeparator:
+                BoxLayout:   # INGREDIENT DISPLAY __________________________
+                    orientation: 'vertical'
+                    size_hint: None, None
+                    width: root.width
+                    height: self.minimum_height
+                    padding: 0
+                    spacing: 0
+                    BoxLayout:
+                        id: table_data
+                        orientation: 'vertical'
+                        size_hint_y: None
+                        height: app.data_height
+                        padding: 0
+                        spacing: 0
+                  # _________________________________________
+
+                BoxLayout:
+                    size_hint: None, None
+                    width: root.width
+                    height: self.minimum_height
+                    padding: 20
+                    spacing: 5
+                    orientation: 'vertical'
+                    MDSeparator:
+                        size_hint: None, None
+                        width: root.width
+                        height: 2
+                        pos_hint: {'center_x': 0.5}
+                    Label:
+                        text: app.instruction_display
+                        markup: True
+                        halign: 'left'
+                        valign: 'top'
+                        text_size: self.width, None
+                        font_size: 15
+                        size_hint_y: None
+                        height: self.texture_size[1] + 20
+        MDFloatButtonBack:
+        MDFloatButtonEdit:
