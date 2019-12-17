@@ -1,0 +1,97 @@
+#:import Factory kivy.factory.Factory
+#:import MDDropdownMenu kivymd.uix.menu.MDDropdownMenu
+
+NavigationLayout:
+    id: nav_layout
+    on_size: app.update_tile_width
+    MDNavigationDrawer:
+        drawer_logo: 'images/logo.png'
+        NavigationDrawerSubheader:
+            text: "Menu:"
+        NavigationDrawerIconButton:
+            icon: 'library-books'
+            text: 'Library'
+            on_release:
+                screen_manager.current = 'tile_list_screen'
+        NavigationDrawerIconButton:
+            icon: 'shopping'
+            text: 'Groceries'
+            on_release:
+                screen_manager.current = 'display_screen'
+        NavigationDrawerIconButton:
+            icon: 'database'
+            text: 'Pantry'
+            on_release:
+                screen_manager.current = 'display_screen'
+        NavigationDrawerIconButton:
+            icon: 'food'
+            text: 'Meals'
+            on_release:
+                screen_manager.current = 'display_screen'
+        NavigationDrawerIconButton:
+            icon: 'menu'
+            text: 'Menus'
+            on_release:
+                screen_manager.current = 'display_screen'
+        NavigationDrawerIconButton:
+            icon: 'settings'
+            text: 'Settings'
+            on_release: app.open_settings()
+
+    BoxLayout:
+        id: toolbox
+        orientation: 'vertical'
+
+        MDToolbar:
+            id: toolbar
+            title: app.toolbar_title if root.width > 500 else ''
+            md_bg_color: app.theme_cls.primary_color
+            background_palette: 'Primary'
+            background_hue: '500'
+            elevation: 10
+            left_action_items:
+                [
+                ['dots-vertical', lambda x: app.root.toggle_nav_drawer()],
+                ['filter-menu', lambda x: MDDropdownMenu(items=app.filter_items, width_mult=3).open(x)],
+                ]
+
+            MDSearchField:
+                id: search_field
+                size_hint: 0.7, None
+                height: 35
+                pos_hint: {'center_x': .5, 'center_y': 0.5}
+
+        ScreenManager:
+            id: screen_manager
+            name: 'screen_manager'
+            Screen:
+                name: 'tile_list_screen'
+                on_enter: app.clear_display()
+                manager: screen_manager
+                AnchorLayout:
+                    size_hint: None, None
+                    width: root.width
+                    height: root.height - toolbar.height
+                    x: root.x
+                    y: 0
+                    ScrollView:
+                        id: scroll_view
+                        do_scroll_x: False
+                        do_scroll_y: True
+                        bar_width: 8
+                        bar_color: app.theme_cls.accent_color
+                        bar_inactive_color: [.7, .7, .7, .4]
+                        scroll_type: ['bars', 'content']
+                        GridLayout:
+                            id: main_scroll_menu
+                            cols: app.menu_col_num
+                            row_default_height: app.menu_tile_height
+                            size_hint: None, None
+                            width: root.width
+                            height: self.minimum_height
+                            spacing: 5
+                            padding: 5
+
+                MDFloatButtonNew:
+
+
