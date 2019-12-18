@@ -6,12 +6,20 @@ Built with:
   - kivy 1.9.1
   - kivymd
 
-![Alt text](images/screen1.png?raw=true "Title")
+![Alt text](images/bin/screenshots/screen1.png?raw=true "Title")
 
-![Alt text](images/screen2.png?raw=true "Title")
+![Alt text](images/bin/screenshots/screen2.png?raw=true "Title")
 
-![Alt text](images/screen3.png?raw=true "Title")
+![Alt text](images/bin/screenshots/screen3.png?raw=true "Title")
 
-![Alt text](images/screen4.png?raw=true "Title")
+![Alt text](images/bin/screenshots/screen4.png?raw=true "Title")
 
-![Alt text](images/screen5.png?raw=true "Title")
+![Alt text](images/bin/screenshots/screen5.png?raw=true "Title")
+
+![Alt text](images/bin/screenshots/screen6.png?raw=true "Title")
+
+![Alt text](images/bin/screenshots/screen7.png?raw=true "Title")
+
+![Alt text](images/bin/screenshots/screen8.png?raw=true "Title")
+
+![Alt text](images/bin/screenshots/screen9.png?raw=true "Title")
